@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  if error
+    p= error
+  h1= title
+  form.container(action='/login' method='post')
+    .row
+      label.col-sm-2(for='username') Username
+      input.col-sm-6(type='text' name='username')
+    .row
+      label.col-sm-2(for='password') Password
+      input.col-sm-6(type='password' name='password')
+    .row
+      input.btn.btn-sm.col-sm-1(type='submit' value='Login')
