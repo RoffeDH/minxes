@@ -13,7 +13,6 @@ router.get('/', function(req, res, next) {
 
 /* GET logged in user. */
 router.get('/me', function(req, res, next) {
-  console.log(req.user);
   res.render('users/me');
 });
 
