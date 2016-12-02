@@ -1,0 +1,22 @@
+extends ../layouts/main
+
+block content
+  if error
+    p= error
+  h1= title
+  form(role='form', action='/register', method='POST')
+    .form-group.row
+        label.col-form-label.col-sm-2.text-xs-right(for='email') E-mail
+        div.col-sm-10
+          input.form-control(type='email', name='email')
+    .form-group.row
+      label.col-form-label.col-sm-2.text-xs-right(for='password') Password
+      div.col-sm-10
+        input.form-control(type='password', name='password')
+    .form-group.row
+      label.col-form-label.col-sm-2.text-xs-right(for='authenticate-password') Re-type password
+      div.col-sm-10
+        input.form-control(type='password', name='authenticate-password')
+    .form-group.row
+      div.col-sm-2.text-xs-right
+        button.btn.btn-default(type='submit') Submit

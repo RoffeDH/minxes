@@ -11,6 +11,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const flash = require('connect-flash');
+const sass = require('node-sass');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -19,6 +20,7 @@ var app = express();
 app.use(session({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
+//app.use(isLoggedIn);
 
 // set globally used variables
 app.use(function(req, res, next){
@@ -26,6 +28,13 @@ app.use(function(req, res, next){
   res.locals.user = req.user;
 
   next();
+});
+
+// remder sass files
+sass.render({
+  file: path.join(__dirname, 'sass/bootstrap-flex.scss'),
+  outputStyle: 'compressed',
+  outFile: path.join(__dirname, 'public/stylesheet/bootstrap.css')
 });
 
 // view engine setup
@@ -37,7 +46,6 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(require('serve-static')('./public'));
@@ -45,10 +53,26 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(flash());
 
-const Account = require('./db/models/account');
-passport.use(new LocalStrategy(Account.authenticate()));
-passport.serializeUser(Account.serializeUser());
-passport.deserializeUser(Account.deserializeUser());
+const User = require('./db/models/user');
+
+//passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+passport.use(new LocalStrategy(
+  function(email, password, done) {
+    User.findOne({ email }, function(err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
 
 app.use('/', index);
 app.use('/users', users);
